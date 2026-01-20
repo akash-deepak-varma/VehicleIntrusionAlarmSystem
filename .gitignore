@@ -72,3 +72,5 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+
+requirementsFull.txt
