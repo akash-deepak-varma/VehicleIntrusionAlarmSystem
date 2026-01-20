@@ -1,0 +1,74 @@
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+.venv/
+env/
+ENV/
+vechile
+
+# =========================
+# Python cache / compiled files
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Snapshots / Generated outputs
+# =========================
+snapshots/
+*.jpg
+*.png
+
+# =========================
+# Data files (videos, images, test data)
+# =========================
+data/
+data/videos/
+data/images/
+
+# =========================
+# Model weights / large ML files
+# =========================
+models/*.pt
+models/tracker/
+*.onnx
+*.engine
+
+# =========================
+# Jupyter Notebook checkpoints (if any)
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# OS-specific files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Editor / IDE settings
+# =========================
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# Python packaging
+# =========================
+build/
+dist/
+*.egg-info/

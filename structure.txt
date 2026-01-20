@@ -1,0 +1,31 @@
+vehicle_alert_system/
+│
+├── data/                     # Store video feeds, test videos, and images
+│   ├── videos/
+│   └── images/
+│
+├── configs/                  # All configuration files
+│   ├── roi_config.yaml       # Define ROI coordinates
+│   ├── tracker_config.yaml   # Tracker parameters
+│   └── alert_config.yaml     # Alert settings (cooldown, methods)
+│
+├── models/                   # YOLO weights and tracker models
+│   ├── yolov8n.pt
+│   └── tracker/              # Tracker configs/models if needed
+│
+├── src/                      # All source code
+│   ├── detection.py          # YOLO detection code
+│   ├── tracking.py           # Tracker integration (ByteTrack/DeepSORT)
+│   ├── roi_check.py          # ROI entry logic
+│   ├── alerting.py           # Alerting logic (SMS, push, beep)
+│   ├── utils.py              # Helper functions (drawing, logging)
+│   └── main.py               # Entry point: runs everything in a loop
+│
+├── logs/                     # Log files and event records
+│   └── events.log
+│
+├── snapshots/                # Captured frames of intrusions
+│   └── YYYYMMDD_HHMMSS.jpg
+│
+├── requirements.txt          # Python dependencies
+└── README.md                 # Project overview, setup instructions
