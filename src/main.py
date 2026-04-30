@@ -7,11 +7,15 @@ from utils import select_roi_dynamically, draw_roi_and_alerts
 from ultralytics import YOLO
 from datetime import datetime
 from dotenv import load_dotenv
+import torch
+
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Using device: {DEVICE}")
 
 load_dotenv()
 
 # CONFIGURATION
-VIDEO_PATH = os.getenv("VIDEOFILE")
+VIDEO_PATH = os.getenv(VIDEOPATH)
 MODEL_PATH = r"models\finetune.pt"
 VEHICLE_CLASSES = [2, 3, 5, 7]  
 RUN_REALTIME = False 
@@ -27,6 +31,7 @@ def run_system():
         return
 
     model = YOLO(MODEL_PATH)
+    model.to(DEVICE)
     cap = cv2.VideoCapture(source)
     
     # Tracking state
@@ -41,7 +46,7 @@ def run_system():
         
         if TRACKING_MODE:
             # --- TRACKING-BASED ALARM LOGIC ---
-            results = model.track(frame, persist=True, verbose=False)
+            results = model.track(frame, persist=True, device=DEVICE ,verbose=False)
             for r in results:
                 if r.boxes is None or r.boxes.id is None: continue
                 
@@ -58,7 +63,7 @@ def run_system():
         
         else:
             # --- TIME-BASED ALARM LOGIC (As before) ---
-            results = model.predict(frame, verbose=False)
+            results = model.predict(frame, verbose=False, device=DEVICE)
             alert_triggered = False
             for r in results:
                 for box in r.boxes:
