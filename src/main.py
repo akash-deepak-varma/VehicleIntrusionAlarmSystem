@@ -15,7 +15,7 @@ print(f"Using device: {DEVICE}")
 load_dotenv()
 
 # CONFIGURATION
-VIDEO_PATH = r"data\videos\1000181395.mp4"
+VIDEO_PATH = os.getenv(VIDEOPATH)
 MODEL_PATH = r"models\finetune.pt"
 VEHICLE_CLASSES = [2, 3, 5, 7]  
 RUN_REALTIME = False 
