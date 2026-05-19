@@ -1,0 +1,260 @@
+digraph YOLO_DetectionModel {
+
+    rankdir=LR;
+    splines=ortho;
+    nodesep=0.5;
+    ranksep=1.0;
+
+    bgcolor="white";
+
+    node [
+        shape=record,
+        style="rounded,filled",
+        fontname="Helvetica",
+        fontsize=12,
+        margin=0.2
+    ];
+
+    edge [
+        color="#555555",
+        penwidth=1.8,
+        arrowsize=0.8
+    ];
+
+    // =========================
+    // INPUT
+    // =========================
+
+    input [
+        label="{Input|640×640×3}",
+        fillcolor="#f3f4f6"
+    ];
+
+    // =========================
+    // BACKBONE
+    // =========================
+
+    subgraph cluster_backbone {
+        label="Backbone";
+        fontsize=18;
+        color="#2563eb";
+        style="rounded";
+
+        b1 [
+            label="{Conv|32 ch|320×320}",
+            fillcolor="#dbeafe"
+        ];
+
+        b2 [
+            label="{Conv|64 ch|160×160}",
+            fillcolor="#dbeafe"
+        ];
+
+        b3 [
+            label="{C3k2 ×3|128 ch|160×160}",
+            fillcolor="#bfdbfe"
+        ];
+
+        b4 [
+            label="{Conv|128 ch|80×80}",
+            fillcolor="#dbeafe"
+        ];
+
+        p3 [
+            label="{C3k2 ×6|256 ch|80×80}",
+            fillcolor="#93c5fd"
+        ];
+
+        b6 [
+            label="{Conv|256 ch|40×40}",
+            fillcolor="#dbeafe"
+        ];
+
+        p4 [
+            label="{C3k2 ×8|256 ch|40×40}",
+            fillcolor="#60a5fa"
+        ];
+
+        b8 [
+            label="{Conv|512 ch|20×20}",
+            fillcolor="#dbeafe"
+        ];
+
+        p5 [
+            label="{C3k2 ×8|512 ch|20×20}",
+            fillcolor="#3b82f6",
+            fontcolor="white"
+        ];
+
+        sppf [
+            label="{SPPF|512 ch|20×20}",
+            fillcolor="#2563eb",
+            fontcolor="white"
+        ];
+
+        psa [
+            label="{C2PSA|512 ch|20×20}",
+            fillcolor="#1d4ed8",
+            fontcolor="white"
+        ];
+    }
+
+    // =========================
+    // NECK
+    // =========================
+
+    subgraph cluster_neck {
+        label="FPN / PAN Neck";
+        fontsize=18;
+        color="#16a34a";
+        style="rounded";
+
+        up1 [
+            label="{Upsample|40×40}",
+            fillcolor="#dcfce7"
+        ];
+
+        cat1 [
+            label="{Concat|768 ch}",
+            fillcolor="#bbf7d0"
+        ];
+
+        n1 [
+            label="{C3k2|256 ch|40×40}",
+            fillcolor="#86efac"
+        ];
+
+        up2 [
+            label="{Upsample|80×80}",
+            fillcolor="#dcfce7"
+        ];
+
+        cat2 [
+            label="{Concat|512 ch}",
+            fillcolor="#bbf7d0"
+        ];
+
+        n2 [
+            label="{C3k2|128 ch|80×80}",
+            fillcolor="#4ade80"
+        ];
+
+        down1 [
+            label="{Downsample Conv|40×40}",
+            fillcolor="#dcfce7"
+        ];
+
+        cat3 [
+            label="{Concat|384 ch}",
+            fillcolor="#bbf7d0"
+        ];
+
+        n3 [
+            label="{C3k2|256 ch|40×40}",
+            fillcolor="#22c55e"
+        ];
+
+        down2 [
+            label="{Downsample Conv|20×20}",
+            fillcolor="#dcfce7"
+        ];
+
+        cat4 [
+            label="{Concat|768 ch}",
+            fillcolor="#bbf7d0"
+        ];
+
+        n4 [
+            label="{C3k2|512 ch|20×20}",
+            fillcolor="#16a34a",
+            fontcolor="white"
+        ];
+    }
+
+    // =========================
+    // DETECTION HEAD
+    // =========================
+
+    subgraph cluster_head {
+        label="Detection Head";
+        fontsize=18;
+        color="#dc2626";
+        style="rounded";
+
+        d1 [
+            label="{Detect P3|80×80}",
+            fillcolor="#fecaca"
+        ];
+
+        d2 [
+            label="{Detect P4|40×40}",
+            fillcolor="#fca5a5"
+        ];
+
+        d3 [
+            label="{Detect P5|20×20}",
+            fillcolor="#f87171"
+        ];
+
+        dfl [
+            label="{DFL|Distribution Focal Loss}",
+            fillcolor="#ef4444",
+            fontcolor="white"
+        ];
+
+        output [
+            label="{Output|1 × 84 × 8400}",
+            fillcolor="#b91c1c",
+            fontcolor="white"
+        ];
+    }
+
+    // =========================
+    // MAIN FLOW
+    // =========================
+
+    input -> b1;
+    b1 -> b2;
+    b2 -> b3;
+    b3 -> b4;
+    b4 -> p3;
+    p3 -> b6;
+    b6 -> p4;
+    p4 -> b8;
+    b8 -> p5;
+    p5 -> sppf;
+    sppf -> psa;
+
+    // FPN
+    psa -> up1;
+    up1 -> cat1;
+    p4 -> cat1;
+    cat1 -> n1;
+
+    n1 -> up2;
+    up2 -> cat2;
+    p3 -> cat2;
+    cat2 -> n2;
+
+    // PAN
+    n2 -> down1;
+    down1 -> cat3;
+    n1 -> cat3;
+    cat3 -> n3;
+
+    n3 -> down2;
+    down2 -> cat4;
+    psa -> cat4;
+    cat4 -> n4;
+
+    // Detect
+    n2 -> d1;
+    n3 -> d2;
+    n4 -> d3;
+
+    d1 -> dfl;
+    d2 -> dfl;
+    d3 -> dfl;
+
+    dfl -> output;
+}
